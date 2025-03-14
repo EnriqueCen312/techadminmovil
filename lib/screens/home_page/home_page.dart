@@ -6,6 +6,7 @@ import '../../connection/auth/AuthController.dart';
 import 'dart:convert';
 import 'package:login_register_app/utils/helpers/snackbar_helper.dart';
 import 'package:login_register_app/values/app_routes.dart';
+import '../../utils/helpers/navigation_helper.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -420,7 +421,8 @@ class _HomePageState extends State<HomePage> {
                                   final result = await controller.bookAppointment(context);
                                   if (result != null && result['success']) {
                                     Navigator.of(context).pop(); // Cierra el modal
-                                    Navigator.pushReplacementNamed(context, AppRoutes.appointmentsPage);
+                                    //Navigator(AppRoutes.appointmentsPage);
+                                    NavigationHelper.pushReplacementNamed(AppRoutes.appointmentsPage);
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -630,8 +632,9 @@ class _HomePageState extends State<HomePage> {
                       try{
 
                         final logOut = AuthController(); 
-                        logOut.logout(context);  
-                      
+                        logOut.logout();
+                        NavigationHelper.pushReplacementNamed(AppRoutes.login);  
+                        
                       }catch(e){
                         SnackbarHelper.showSnackBar("Error al cerrar sesión $e");
                       }

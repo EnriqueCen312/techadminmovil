@@ -109,7 +109,7 @@ class AppointmentsController {
   }
 
   // Obtener talleres disponibles
-  Future<List<Map<String, dynamic>>> getWorkshops() async {
+  Future<List<Map<String, dynamic>>> getWorkshops() async { 
     try {
       final response = await supabase.from('talleres').select('id, nombre, direccion');
       return List<Map<String, dynamic>>.from(response);

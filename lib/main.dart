@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login_register_app.dart';
-// Ruta para Bottom Navigation
+import 'package:shared_preferences/shared_preferences.dart';
+import 'screens/navigation/bottom_navigation_page.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import '../utils/helpers/navigation_helper.dart';
+import '../values/app_routes.dart';
+import '/screens/login_screen.dart';
 
 void main() async {
   try {
@@ -27,8 +32,28 @@ void main() async {
       DeviceOrientation.portraitUp,
     ]);
 
-    runApp(const LoginRegisterApp());
+    // Verificar si hay una sesión guardada
+    final prefs = await SharedPreferences.getInstance();
+    final String? user = prefs.getString('user');
+
+    Widget initialScreen = (user != null) ? const BottomNavigationPage() : const LoginRegisterApp();
+
+    runApp(Phoenix(child: MyApp(initialScreen: initialScreen)));
   } catch (error) {
     print('Error during initialization: $error');
+  }
+}
+
+class MyApp extends StatelessWidget {
+  final Widget initialScreen;
+
+  const MyApp({Key? key, required this.initialScreen}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: initialScreen,
+    );
   }
 }

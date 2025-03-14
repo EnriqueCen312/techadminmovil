@@ -17,6 +17,7 @@ import '../connection/auth/AuthController.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:convert';
 
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 

@@ -4,6 +4,10 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:login_register_app/values/app_routes.dart';
+import '../../utils/helpers/navigation_helper.dart';
+import '../../screens/login_screen.dart';
+import '../../login_register_app.dart';
 
 class AuthController {
 
@@ -124,15 +128,21 @@ Future<Map<String, dynamic>> signIn(String email, String password) async {
   }
 }
 
-  Future<void> logout(BuildContext context) async {
+Future<void> logout() async {
+  try {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()), // Redirige a la pantalla de login
-      (Route<dynamic> route) => false, // Elimina todas las pantallas anteriores
-    );
+    bool cleared = await prefs.clear();
+
+    if (cleared) {
+      debugPrint("SharedPreferences limpiado. Redirigiendo al login...");
+      
+    } else {
+      debugPrint("Error al limpiar SharedPreferences.");
+    }
+  } catch (e) {
+    debugPrint("Error en logout: $e");
   }
+}
 
   Future<int?> getUserId() async {
     try {
