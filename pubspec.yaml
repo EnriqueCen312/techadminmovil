@@ -34,7 +34,7 @@ dev_dependencies:
 flutter_launcher_icons:
  android: true
  ios: true
- image_path: "assets/images/mecanico.png"
+ image_path: "assets/images/logotech.png"
 
 flutter:
 
@@ -42,7 +42,7 @@ flutter:
 
   assets:
     - assets/vectors/
-    - assets/images/mecanico.png
+    - assets/images/logotech.png
     - assets/images/descarga.jpeg
     - assets/images/1.jpg
     - assets/images/2.jpg
