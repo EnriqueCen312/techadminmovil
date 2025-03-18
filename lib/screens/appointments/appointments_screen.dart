@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'dart:async'; // Importación necesaria para StreamSubscription
 import 'package:login_register_app/connection/Appoiment/AppoimentController.dart';
 import 'package:login_register_app/values/app_routes.dart';
+import 'package:login_register_app/widgets/app_drawer.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({Key? key}) : super(key: key);
@@ -134,73 +135,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             ),
           ],
         ),
-        endDrawer: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.7,
-          height: MediaQuery.of(context).size.height,
-          child: Drawer(
-            child: Container(
-              color: Colors.blue.shade900,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 120,
-                    width: double.infinity,
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Tech',
-                                  style: TextStyle(
-                                    color: Colors.orange.shade500,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const Text(
-                                  'Administrator',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Divider(color: Colors.white.withOpacity(0.3)),
-                  ListTile(
-                    leading: const Icon(Icons.settings, color: Colors.white),
-                    title: const Text('Configuración', style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Expanded(child: Container()),
-                  Divider(color: Colors.white.withOpacity(0.3)),
-                  ListTile(
-                    leading: const Icon(Icons.logout, color: Colors.white),
-                    title: const Text('Cerrar Sesión', style: TextStyle(color: Colors.white)),
-                    onTap: () async {
-                      Navigator.pop(context);
-                      Navigator.pushReplacementNamed(context, '/login');
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ),
-        ),
+        endDrawer: const AppDrawer(),
         body: RefreshIndicator(
           onRefresh: _refreshAppointments,
           child: _buildBody(),
