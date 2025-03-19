@@ -129,19 +129,30 @@ class _HomePageState extends State<HomePage> {
                 onTimeSelected: (time) => setSheetState(() => controller.selectTime(time)),
                 onDescriptionChanged: controller.setAppointmentDescription,
                 onBookingSubmitted: () async {
-                                  final result = await controller.bookAppointment(context);
-                                  if (result != null && result['success']) {
-                    Navigator.of(context).pop();
-                                    NavigationHelper.pushReplacementNamed(AppRoutes.appointmentsPage);
-                                  } else {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(result?['error'] ?? 'Error al agendar la cita'),
-                                        backgroundColor: Colors.red,
-                                      ),
-                                    );
-                                  }
-                                },
+                  final result = await controller.bookAppointment(context);
+                  if (result != null && result['success']) {
+                    Navigator.of(context).pop(); // Cierra el bottom sheet
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('¡Cita creada con éxito!'),
+                        backgroundColor: Colors.green,
+                        behavior: SnackBarBehavior.floating,
+                        margin: const EdgeInsets.all(16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(result?['error'] ?? 'Error al agendar la cita'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
                 selectedDate: controller.selectedDate,
                 selectedTime: controller.selectedTime,
                 selectedVehicle: controller.selectedVehicle,
