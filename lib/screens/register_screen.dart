@@ -34,6 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final ValueNotifier<bool> confirmPasswordNotifier = ValueNotifier(true);
   final ValueNotifier<bool> fieldValidNotifier = ValueNotifier(false);
   final ValueNotifier<bool> isTypingPassword = ValueNotifier(false);
+  final ValueNotifier<bool> isTypingEmail = ValueNotifier(false);
 
   // Password requirements
   final ValueNotifier<bool> hasMinLength = ValueNotifier(false);
@@ -110,7 +111,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    if (AppRegex.emailRegex.hasMatch(email) &&
+    if (email.contains('@gmail.com') &&
         hasMinLength.value &&
         hasUppercase.value &&
         hasNumber.value &&
@@ -162,6 +163,41 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Widget _buildEmailRequirement(bool isValid, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 20,
+            height: 20,
+            decoration: BoxDecoration(
+              color: isValid ? Colors.green : Colors.transparent,
+              border: Border.all(
+                color: isValid ? Colors.green : Colors.grey,
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: isValid 
+              ? const Icon(Icons.check, color: Colors.white, size: 12) 
+              : null,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            text,
+            style: TextStyle(
+              color: isValid ? Colors.green.shade700 : Colors.grey.shade600,
+              fontSize: 14,
+              fontWeight: isValid ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // Método para manejar el registro exitoso
   void _handleSuccessfulRegistration() {
     // Simplificamos la navegación para evitar problemas con nulos
@@ -189,7 +225,15 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 Text(AppStrings.register, style: AppTheme.titleLarge),
                 SizedBox(height: 6),
-                Text(AppStrings.createYourAccount, style: AppTheme.bodySmall),
+                Text(
+                  AppStrings.createYourAccount, 
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ],
             ),
             Padding(
@@ -215,8 +259,75 @@ class _RegisterPageState extends State<RegisterPage> {
                       controller: emailController,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.emailAddress,
+                      onChanged: (value) {
+                        isTypingEmail.value = value.isNotEmpty;
+                        setState(() {}); // Forzar actualización del estado
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return AppStrings.pleaseEnterEmailAddress;
+                        }
+                        if (!value.contains('@gmail.com')) {
+                          return 'Debe ser un correo de Gmail válido';
+                        }
+                        return null;
+                      },
                     ),
                     
+                    // Email Requirements
+                    ValueListenableBuilder<bool>(
+                      valueListenable: isTypingEmail,
+                      builder: (context, isTyping, child) {
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return ScaleTransition(scale: animation, child: child);
+                          },
+                          child: isTyping 
+                            ? Container(
+                                key: const ValueKey('email-requirements'),
+                                margin: const EdgeInsets.only(bottom: 16),
+                                padding: const EdgeInsets.all(12),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: const [
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 10,
+                                      offset: Offset(0, 4),
+                                    ),
+                                  ],
+                                  border: Border.all(
+                                    color: Colors.grey.shade200,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Requisitos del Correo',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _buildEmailRequirement(
+                                      emailController.text.contains('@gmail.com'),
+                                      'Debe ser un correo de Gmail'
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : const SizedBox.shrink(key: ValueKey('empty')),
+                        );
+                      },
+                    ),
+
                     // Password Requirements
                     ValueListenableBuilder<bool>(
                       valueListenable: isTypingPassword,

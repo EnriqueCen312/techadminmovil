@@ -57,24 +57,16 @@ class VehiclesController {
     try {
       final userId = await getUserId();
       
-      print('Eliminando vehículo $vehicleId del usuario $userId');
-
-      final response = await supabase
+      await supabase
           .from('vehiculos')
           .delete()
           .match({
             'id': vehicleId,
-            'usuario_app_id': userId // Verificación adicional de seguridad
+            'usuario_app_id': userId
           });
       
-      if (response.error != null) {
-        throw Exception(response.error!.message);
-      }
-      
-      print('Vehículo eliminado exitosamente');
     } catch (error) {
-      print('Error al eliminar el vehículo: $error');
-      throw Exception('No se pudo eliminar el vehículo: $error');
+      throw Exception('No se pudo eliminar el vehículo');
     }
   }
 

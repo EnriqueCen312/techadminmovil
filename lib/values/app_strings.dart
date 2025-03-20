@@ -5,7 +5,7 @@ class AppStrings {
   static const String uhOhPageNotFound = 'uh-oh!\nalgo salió mal';
   static const String register = 'Regístrate';
   static const String login = 'Inicia sesión';
-  static const String createYourAccount = 'Crea una cuenta';
+  static const String createYourAccount = '¡Únete a Tech Administrator!';
   static const String doNotHaveAnAccount = "¿No tienes una cuenta?";
   static const String facebook = 'Facebook';
   static const String google = 'Google';

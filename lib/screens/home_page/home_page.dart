@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:login_register_app/connection/Home/HomeController.dart';
+import '../../connection/Home/HomeController.dart';
 import '../../connection/auth/AuthController.dart';
-import 'dart:convert';
-import 'package:login_register_app/utils/helpers/snackbar_helper.dart';
-import 'package:login_register_app/values/app_routes.dart';
+import '../../utils/helpers/snackbar_helper.dart';
 import '../../utils/helpers/navigation_helper.dart';
-import 'package:login_register_app/widgets/workshop_card.dart';
-import 'package:login_register_app/widgets/booking_form.dart';
-import 'package:login_register_app/widgets/app_drawer.dart';
+import '../../widgets/workshop_card.dart';
+import '../../widgets/booking_form.dart';
+import '../../widgets/app_drawer.dart';
+import '../../widgets/custom_app_bar.dart';
+import '../../widgets/workshop_search_bar.dart';
+import '../../widgets/no_results_found.dart';
+import '../../widgets/exit_confirmation_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -165,206 +167,51 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<bool> _showExitConfirmationDialog() async {
-    return await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: const Column(
-          children: [
-            Icon(Icons.warning_amber_rounded, size: 50, color: Colors.orange),
-            SizedBox(height: 10),
-            Text(
-              '¿Desea salir?',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-        content: const Text(
-          '¿Está seguro que desea salir de la aplicación?',
-          textAlign: TextAlign.center,
-        ),
-        actions: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancelar'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Salir'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ) ?? false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
         if (didPop) return;
-        
-        final shouldPop = await _showExitConfirmationDialog();
-        
+        final shouldPop = await ExitConfirmationDialog.show(context);
         if (shouldPop) {
-          SystemNavigator.pop(); // This will close the app
+          SystemNavigator.pop();
         }
       },
       child: Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Tech',
-                style: TextStyle(
-                  color: Colors.orange.shade500,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Text(
-                'Administrator',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.blue.shade900,
-          automaticallyImplyLeading: false, // Remove back button
-          actions: [
-            IconButton(
-              icon: Icon(
-                isSearchVisible ? Icons.close : Icons.search,
-                color: Colors.white
-              ),
-              onPressed: _toggleSearch,
-            ),
-            IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
-              onPressed: () {
-                _scaffoldKey.currentState?.openEndDrawer();
-              },
-            ),
-          ],
+        appBar: CustomAppBar(
+          isSearchVisible: isSearchVisible,
+          onSearchToggle: _toggleSearch,
+          onMenuPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
         ),
         endDrawer: const AppDrawer(),
         body: Column(
           children: [
-            // Search bar (conditionally visible)
             if (isSearchVisible)
-              Container(
-                color: Colors.blue.shade800,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Column(
-                  children: [
-                    TextField(
-                      controller: searchController,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: InputDecoration(
-                        hintText: 'Buscar talleres...',
-                        hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                        prefixIcon: const Icon(Icons.search, color: Colors.white),
-                        filled: true,
-                        fillColor: Colors.blue.shade700,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                      ),
-                      cursorColor: Colors.white,
-                    ),
-                    const SizedBox(height: 8),
-                    // Filter options
-                    SizedBox(
-                      height: 40,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          const SizedBox(width: 4),
-                          for (String filter in filterOptions)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: ChoiceChip(
-                                label: Text(filter),
-                                selected: selectedFilter == filter,
-                                onSelected: (selected) {
-                                  setState(() {
-                                    selectedFilter = selected ? filter : null;
-                                    _applySearch(); // Apply filter when changed
-                                  });
-                                },
-                                backgroundColor: Colors.blue.shade700,
-                                selectedColor: Colors.orange.shade500,
-                                labelStyle: TextStyle(
-                                  color: selectedFilter == filter 
-                                    ? Colors.white 
-                                    : Colors.white.withOpacity(0.8),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              WorkshopSearchBar(
+                searchController: searchController,
+                selectedFilter: selectedFilter,
+                filterOptions: filterOptions,
+                onFilterSelected: (filter) {
+                  setState(() {
+                    selectedFilter = filter;
+                    _applySearch();
+                  });
+                },
+                onSearch: _applySearch,
               ),
             
-            // Workshop list
             Expanded(
               child: controller.getDisplayedWorkshops().isEmpty && controller.workshops.isNotEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.search_off, size: 60, color: Colors.grey.shade400),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No se encontraron talleres',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        TextButton(
-                          onPressed: () {
-                            searchController.clear();
-                            setState(() {
-                              selectedFilter = null;
-                              controller.resetFilters();
-                            });
-                          },
-                          child: const Text('Limpiar búsqueda'),
-                        ),
-                      ],
-                    ),
+                ? NoResultsFound(
+                    onClearSearch: () {
+                      searchController.clear();
+                      setState(() {
+                        selectedFilter = null;
+                        controller.resetFilters();
+                      });
+                    },
                   )
                 : controller.workshops.isEmpty
                   ? const Center(

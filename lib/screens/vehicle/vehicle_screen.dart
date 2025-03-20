@@ -118,13 +118,31 @@ class _VehicleScreenState extends State<VehicleScreen> {
         // Actualizar vehículo existente
         await _vehicleController.editVehicle(editingVehicleId!, vehicleData);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vehículo actualizado correctamente')),
+          SnackBar(
+            content: const Text('Vehículo actualizado correctamente'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
         );
       } else {
         // Registrar nuevo vehículo
         await _vehicleController.registerVehicle(vehicleData);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vehículo agregado correctamente')),
+          SnackBar(
+            content: const Text('Vehículo agregado correctamente'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
         );
       }
       
@@ -135,7 +153,15 @@ class _VehicleScreenState extends State<VehicleScreen> {
       Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+        SnackBar(
+          content: const Text('No se pudo guardar el vehículo. Intente nuevamente.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       );
     }
   }
@@ -149,11 +175,11 @@ class _VehicleScreenState extends State<VehicleScreen> {
           content: const Text('¿Estás seguro de que deseas eliminar este vehículo? Esta acción no se puede deshacer.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(false), // Cancelar
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
-              onPressed: () => Navigator.of(context).pop(true), // Confirmar
+              onPressed: () => Navigator.of(context).pop(true),
               child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
             ),
           ],
@@ -164,13 +190,42 @@ class _VehicleScreenState extends State<VehicleScreen> {
     if (confirm == true) {
       try {
         await _vehicleController.deleteVehicle(id);
+        // Primero actualizamos la lista local
+        setState(() {
+          vehicles.removeWhere((vehicle) => vehicle['id'] == id);
+        });
+        
+        if (!mounted) return;
+        
+        // Mostramos el mensaje de éxito
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Vehículo eliminado correctamente')),
+          SnackBar(
+            content: const Text('Vehículo eliminado correctamente'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
         );
-        _loadVehicles(); // Recargar la lista de vehículos después de eliminar
       } catch (e) {
+        if (!mounted) return;
+        
+        // Si hay un error, recargamos la lista completa
+        await _loadVehicles();
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar el vehículo: ${e.toString()}')),
+          SnackBar(
+            content: const Text('No se pudo eliminar el vehículo. Intente nuevamente.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         );
       }
     }
@@ -197,70 +252,130 @@ class _VehicleScreenState extends State<VehicleScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => Padding(
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              spreadRadius: 5,
+            ),
+          ],
+        ),
         padding: EdgeInsets.only(
-          left: 16,
-          right: 16,
-          top: 16,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
         ),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                isEditing ? 'Editar Vehículo' : 'Agregar Vehículo',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              _buildTextField(marcaController, 'Marca'),
-              _buildTextField(modeloController, 'Modelo'),
-              _buildYearPicker(),
-              _buildColorPicker(),
-              _buildTextField(
-                placaController, 
-                'Placa',
-                errorText: placaError,
-                onChanged: (val) {
-                  if (placaError != null) {
-                    _validatePlaca();
-                  }
-                },
-              ),
-              const SizedBox(height: 12),
-              _buildVehicleTypeDropdown(),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () => Navigator.pop(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.grey,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: const Text('Cancelar'),
-                    ),
+              // Header con gradiente
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade900, Colors.blue.shade800],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _saveVehicle,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 50),
-                      ),
-                      child: Text(isEditing ? 'Actualizar' : 'Guardar'),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Icon(
+                      isEditing ? Icons.edit : Icons.add_circle_outline,
+                      color: Colors.white,
+                      size: 30,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 15),
+                    Text(
+                      isEditing ? 'Editar Vehículo' : 'Agregar Vehículo',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Formulario
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Campos del formulario con mejor diseño
+                    _buildTextField(
+                      marcaController,
+                      'Marca',
+                      prefixIcon: Icons.directions_car,
+                    ),
+                    _buildTextField(
+                      modeloController,
+                      'Modelo',
+                      prefixIcon: Icons.style,
+                    ),
+                    _buildYearPickerNew(),
+                    _buildColorPickerNew(),
+                    _buildTextField(
+                      placaController,
+                      'Placa',
+                      prefixIcon: Icons.credit_card,
+                      errorText: placaError,
+                      onChanged: (val) {
+                        if (placaError != null) {
+                          _validatePlaca();
+                        }
+                      },
+                      helperText: 'Formato: ABC123 o ABC1234',
+                    ),
+                    _buildVehicleTypeDropdownNew(),
+                    const SizedBox(height: 24),
+                    // Botones con mejor diseño
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey.shade200,
+                              foregroundColor: Colors.grey.shade800,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              'Cancelar',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _saveVehicle,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue.shade900,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 15),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              isEditing ? 'Actualizar' : 'Guardar',
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ],
           ),
@@ -274,59 +389,78 @@ class _VehicleScreenState extends State<VehicleScreen> {
     String label, {
     TextInputType? keyboardType,
     String? errorText,
+    String? helperText,
+    IconData? prefixIcon,
     Function(String)? onChanged,
   }) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            errorText: errorText,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-            filled: true,
-            fillColor: Colors.grey[200],
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-  Widget _buildYearPicker() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            onChanged: onChanged,
+            decoration: InputDecoration(
+              errorText: errorText,
+              helperText: helperText,
+              prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Colors.blue.shade900) : null,
+              filled: true,
+              fillColor: Colors.grey.shade50,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blue.shade900, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildYearPickerNew() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Año',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800,
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
             ),
             child: DropdownButtonFormField<String>(
               value: selectedYear,
+              icon: Icon(Icons.calendar_today, color: Colors.blue.shade900),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
                 border: InputBorder.none,
@@ -349,106 +483,64 @@ class _VehicleScreenState extends State<VehicleScreen> {
     );
   }
 
-
-  Widget _buildColorPicker() {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 12),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Color',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey[700],
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color.fromARGB(255, 255, 255, 255)),
-          ),
-          child: DropdownButtonFormField<String>(
-            value: selectedColor,
-            decoration: const InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16),
-              border: InputBorder.none,
-            ),
-            items: availableColors.map((colorInfo) {
-              final String colorName = colorInfo['name'] as String;
-              final Color colorValue = colorInfo['color'] as Color;
-
-              return DropdownMenuItem<String>(
-                value: colorName,
-                child: Row(
-                  children: [
-                    
-                    Container(
-                      width: 20,
-                      height: 20,
-                      decoration: BoxDecoration(
-                        color: colorValue,
-                        borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: Colors.grey),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(colorName),
-                  ],
-                ),
-              );
-            }).toList(),
-            onChanged: (value) {
-              setState(() {
-                selectedColor = value!;
-              });
-            },
-          ),
-        ),
-      ],
-    ),
-  );
-}
-
-
-  Widget _buildVehicleTypeDropdown() {
+  Widget _buildColorPickerNew() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tipo de Vehículo',
+            'Color',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[700],
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800,
             ),
           ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
             ),
             child: DropdownButtonFormField<String>(
-              value: selectedType,
-              items: vehicleTypes.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(type.toUpperCase()),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedType = value!;
-                });
-              },
+              value: selectedColor,
+              icon: Icon(Icons.color_lens, color: Colors.blue.shade900),
               decoration: const InputDecoration(
                 contentPadding: EdgeInsets.symmetric(horizontal: 16),
                 border: InputBorder.none,
               ),
+              items: availableColors.map((colorInfo) {
+                final String colorName = colorInfo['name'] as String;
+                final Color colorValue = colorInfo['color'] as Color;
+                return DropdownMenuItem<String>(
+                  value: colorName,
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: colorValue,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: Colors.grey.shade400,
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(colorName),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedColor = value!;
+                });
+              },
             ),
           ),
         ],
@@ -456,6 +548,68 @@ class _VehicleScreenState extends State<VehicleScreen> {
     );
   }
 
+  Widget _buildVehicleTypeDropdownNew() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Tipo de Vehículo',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: DropdownButtonFormField<String>(
+              value: selectedType,
+              icon: Icon(Icons.category, color: Colors.blue.shade900),
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                border: InputBorder.none,
+              ),
+              items: vehicleTypes.map((type) {
+                IconData icon;
+                switch (type) {
+                  case 'moto':
+                    icon = Icons.motorcycle;
+                    break;
+                  case 'camion':
+                    icon = Icons.local_shipping;
+                    break;
+                  default:
+                    icon = Icons.directions_car;
+                }
+                return DropdownMenuItem(
+                  value: type,
+                  child: Row(
+                    children: [
+                      Icon(icon, color: Colors.blue.shade900),
+                      const SizedBox(width: 12),
+                      Text(type.toUpperCase()),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedType = value!;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _getVehicleIcon(String type) {
     switch (type) {
