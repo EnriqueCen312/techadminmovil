@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:login_register_app/screens/home_page/home_page.dart';
 import 'package:login_register_app/screens/vehicle/vehicle_screen.dart';
 import 'package:login_register_app/screens/appointments/appointments_screen.dart';
-import 'package:login_register_app/screens/history/history_screen.dart';
+import 'package:login_register_app/screens/notifications/notifications_screen.dart';
 
 class BottomNavigationPage extends StatefulWidget {
   final int initialIndex;
@@ -20,7 +20,7 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
     const HomePage(),            
     const VehicleScreen(),      
     const AppointmentsScreen(), 
-    const HistoryScreen(),    
+    const NotificationsScreen(),
   ];
 
   @override
@@ -71,8 +71,8 @@ class _BottomNavigationPageState extends State<BottomNavigationPage> {
               label: 'Citas',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long),
-              label: 'Historial',
+              icon: Icon(Icons.notifications),
+              label: 'Notificaciones',
             ),
           ],
         ),
