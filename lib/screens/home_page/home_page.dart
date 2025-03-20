@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Text('¡Cita creada con éxito!'),
-                        backgroundColor: Colors.green,
+                        backgroundColor: Colors.orange,
                         behavior: SnackBarBehavior.floating,
                         margin: const EdgeInsets.all(16),
                         shape: RoundedRectangleBorder(

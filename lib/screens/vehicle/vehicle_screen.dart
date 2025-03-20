@@ -120,7 +120,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Vehículo actualizado correctamente'),
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.orange,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(16),
             shape: RoundedRectangleBorder(
@@ -135,7 +135,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Vehículo agregado correctamente'),
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.orange,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(16),
             shape: RoundedRectangleBorder(
@@ -201,7 +201,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Vehículo eliminado correctamente'),
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.orange,
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(16),
             shape: RoundedRectangleBorder(

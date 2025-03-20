@@ -13,6 +13,13 @@ class SnackbarHelper {
         ..showSnackBar(
           SnackBar(
             content: Text(message ?? ''),
+            backgroundColor: isError ? Colors.red : Colors.orange,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            duration: const Duration(seconds: 2),
           ),
         );
 }
