@@ -11,6 +11,8 @@ import '../values/app_routes.dart';
 import '../values/app_strings.dart';
 import '../values/app_theme.dart';
 import '../utils/helpers/snackbar_helper.dart';
+import '../connection/email_service/email_serice.dart';
+import '/email_verificator/EmailConfirmationScreen.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -323,14 +325,19 @@ class _RegisterPageState extends State<RegisterPage> {
                                   final fullName = "${nameController.text} ${lastNameController.text}";
 
                                   final auth = AuthController();
+                                  final confirmacion = email_service();
 
                                   try {
-                                    // Llamada correcta al método asíncrono
+
                                     final response = await auth.signUp(fullName, emailController.text, confirmPasswordController.text);
                                     if(response['success']){
-                                                                          
-                                      _handleSuccessfulRegistration();
-                                      SnackbarHelper.showSnackBar("Registro exitoso");
+                                      
+                                      confirmacion.sendEmail(emailController.text);                                    
+                                      //pantalla de confirmación (redirigir)
+                                      final emailConfirmationScreen = EmailConfirmationScreen();
+                                      //_handleSuccessfulRegistration();
+                                      
+                                      //SnackbarHelper.showSnackBar("Registro exitoso");
 
                                     }else{
                                       SnackbarHelper.showSnackBar(response['error']);
