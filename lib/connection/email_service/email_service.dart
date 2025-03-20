@@ -5,7 +5,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class email_service{
 
-  const email_service({super.key});
+  email_service();
+
   int code = 0;
 
   bool compararCodigos(int codigo){
@@ -16,7 +17,9 @@ class email_service{
   try {
     String? username = dotenv.env['EMAIL_USERNAME']!;
     String? password = dotenv.env['EMAIL_PASSWORD']!;
+    
     int code = _generateCode();
+    print('el código es: $code');
 
     final smtpServer = gmail(username, password);
 

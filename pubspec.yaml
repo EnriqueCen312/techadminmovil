@@ -9,6 +9,7 @@ environment:
   sdk: '>=3.1.3 <4.0.0'
 
 dependencies:
+  flutter_dotenv: ^5.0.2
   mailer: ^6.0.0
   flutter:
     sdk: flutter 
@@ -42,6 +43,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - .env
     - assets/vectors/
     - assets/images/logotech.png
     - assets/images/descarga.jpeg

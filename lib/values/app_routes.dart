@@ -8,4 +8,5 @@ class AppRoutes {
   static const String appointmentsPage = '/appointments'; // Aquí asegúrate de que la ruta es '/appointments'
   static const String historyPage = '/history';
   static const String bottomNavigationPage = '/bottom_navigation';
+  static const String emailConfirmation = '/email_confirmation';
 } 

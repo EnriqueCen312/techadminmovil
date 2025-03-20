@@ -8,6 +8,7 @@ import 'screens/register_screen.dart'; // Ruta para Register
 import 'screens/navigation/bottom_navigation_page.dart'; // Ruta para Bottom Navigation
 import 'utils/common_widgets/invalid_route.dart';
 import 'values/app_routes.dart';
+import 'screens/email_verificator/EmailConfirmationScreen.dart';
 
 class Routes {
   const Routes._();
@@ -47,6 +48,8 @@ class Routes {
       case AppRoutes.bottomNavigationPage:
         return getRoute(widget: const BottomNavigationPage());
 
+      case AppRoutes.emailConfirmation:
+        return getRoute(widget: EmailConfirmationScreen());
       // Ruta no válida
       default:
         return getRoute(widget: const InvalidRoute());

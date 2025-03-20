@@ -8,10 +8,21 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import '../utils/helpers/navigation_helper.dart';
 import '../values/app_routes.dart';
 import '/screens/login_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
+
+    await dotenv.load(fileName: ".env");
+
+    print(dotenv.env);    
+
+    if (dotenv.env.isEmpty) {
+      print("dotenv.env está vacío");
+    } else {
+      print("dotenv.env cargado correctamente: ${dotenv.env}");
+    }
 
     // Inicializa Supabase
     await Supabase.initialize(
@@ -21,7 +32,6 @@ void main() async {
           defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5sa3Zuc2J0cmxjd3dqem54aGNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzk0MjMyNzEsImV4cCI6MjA1NDk5OTI3MX0.EHvnCp7c4xpEWIiMOsTlA29UBG3AdhyALuJhj_Bg93E'),
     );
 
-    // Establece el estilo del sistema (por ejemplo, la barra de estado)
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarIconBrightness: Brightness.light,
@@ -36,7 +46,9 @@ void main() async {
     final prefs = await SharedPreferences.getInstance();
     final String? user = prefs.getString('user');
 
+
     Widget initialScreen = (user != null) ? const BottomNavigationPage() : const LoginRegisterApp();
+
 
     runApp(Phoenix(child: MyApp(initialScreen: initialScreen)));
   } catch (error) {

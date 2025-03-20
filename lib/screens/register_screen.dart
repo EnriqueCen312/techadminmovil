@@ -11,8 +11,8 @@ import '../values/app_routes.dart';
 import '../values/app_strings.dart';
 import '../values/app_theme.dart';
 import '../utils/helpers/snackbar_helper.dart';
-import '../connection/email_service/email_serice.dart';
-import '/email_verificator/EmailConfirmationScreen.dart';
+import '../connection/email_service/email_service.dart';
+import '/screens/email_verificator/EmailConfirmationScreen.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -166,7 +166,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _handleSuccessfulRegistration() {
     // Simplificamos la navegación para evitar problemas con nulos
     Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.bottomNavigationPage,
+      AppRoutes.emailConfirmation,
       (route) => false
     );
   }
@@ -332,10 +332,10 @@ class _RegisterPageState extends State<RegisterPage> {
                                     final response = await auth.signUp(fullName, emailController.text, confirmPasswordController.text);
                                     if(response['success']){
                                       
-                                      confirmacion.sendEmail(emailController.text);                                    
+                                      await confirmacion.sendEmail(emailController.text);                                    
                                       //pantalla de confirmación (redirigir)
                                       final emailConfirmationScreen = EmailConfirmationScreen();
-                                      //_handleSuccessfulRegistration();
+                                      _handleSuccessfulRegistration();
                                       
                                       //SnackbarHelper.showSnackBar("Registro exitoso");
 
