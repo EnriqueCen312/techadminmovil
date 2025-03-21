@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:login_register_app/connection/auth/AuthController.dart';
-import 'package:login_register_app/utils/helpers/navigation_helper.dart';
+import 'package:login_register_app/screens/login_screen.dart';
 import 'package:login_register_app/utils/helpers/snackbar_helper.dart';
-import 'package:login_register_app/values/app_routes.dart';
+import 'package:login_register_app/login_register_app.dart';
 
 class AppDrawer extends StatelessWidget {
   final VoidCallback? onSettingsTap;
   final VoidCallback? onLogoutSuccess;
   final Color backgroundColor;
-  
+
   const AppDrawer({
     Key? key,
     this.onSettingsTap,
@@ -64,9 +65,8 @@ class AppDrawer extends StatelessWidget {
               Divider(color: Colors.white.withOpacity(0.3)),
               ListTile(
                 leading: const Icon(Icons.settings, color: Colors.white),
-                title: const Text('Configuración', 
-                  style: TextStyle(color: Colors.white)
-                ),
+                title: const Text('Configuración',
+                    style: TextStyle(color: Colors.white)),
                 onTap: () {
                   Navigator.pop(context);
                   // Aquí iría la lógica para la configuración
@@ -76,19 +76,26 @@ class AppDrawer extends StatelessWidget {
               Divider(color: Colors.white.withOpacity(0.3)),
               ListTile(
                 leading: const Icon(Icons.logout, color: Colors.white),
-                title: const Text('Cerrar Sesión', 
-                  style: TextStyle(color: Colors.white)
-                ),
+                title: const Text('Cerrar Sesión',
+                    style: TextStyle(color: Colors.white)),
                 onTap: () async {
                   try {
-                    final logOut = AuthController(); 
-                    await logOut.logout();
-                    if (context.mounted) {
-                      Navigator.pop(context); // Cierra el drawer
-                      NavigationHelper.pushReplacementNamed(AppRoutes.login);
+                    final logOut = AuthController();
+                    bool success = await logOut.logout();
+
+                    if (success && context.mounted) {
+                      Phoenix.rebirth(context);
+                      // Navegar a la pantalla de login
+                      /*Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                            builder: (context) => const LoginRegisterApp()),
+                        (route) => false,
+                      );*/
                     }
-                  } catch(e) {
-                    SnackbarHelper.showSnackBar("Error al cerrar sesión $e");
+                  } catch (e) {
+                    if (context.mounted) {
+                      SnackbarHelper.showSnackBar("Error al cerrar sesión: $e");
+                    }
                   }
                 },
               ),
@@ -99,4 +106,4 @@ class AppDrawer extends StatelessWidget {
       ),
     );
   }
-} 
+}
