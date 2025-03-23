@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:login_register_app/connection/email_service/email_service.dart';
 import 'package:login_register_app/utils/helpers/snackbar_helper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../connection/auth/AuthController.dart';
 import '../components/app_text_form_field.dart';
 import '../utils/common_widgets/gradient_background.dart';
-import '../utils/helpers/navigation_helper.dart';
-import '../values/app_constants.dart';
 import '../values/app_regex.dart';
 import '../values/app_routes.dart';
 import '../values/app_strings.dart';
 import '../values/app_theme.dart';
-import '../utils/helpers/snackbar_helper.dart';
-import '../connection/email_service/email_service.dart';
 import '/screens/email_verificator/EmailConfirmationScreen.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -54,7 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
         // Show requirements when focus is gained, hide when lost
         isTypingPassword.value = passwordFocusNode.hasFocus;
       });
-    
+
     confirmPasswordFocusNode = FocusNode();
   }
 
@@ -68,14 +66,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void initializeControllers() {
     nameController = TextEditingController()..addListener(controllerListener);
-    lastNameController = TextEditingController()..addListener(controllerListener);
+    lastNameController = TextEditingController()
+      ..addListener(controllerListener);
     emailController = TextEditingController()..addListener(controllerListener);
     passwordController = TextEditingController()
       ..addListener(() {
         passwordListener();
         isTypingPassword.value = passwordController.text.isNotEmpty;
       });
-    confirmPasswordController = TextEditingController()..addListener(controllerListener);
+    confirmPasswordController = TextEditingController()
+      ..addListener(controllerListener);
   }
 
   void disposeControllers() {
@@ -105,7 +105,11 @@ class _RegisterPageState extends State<RegisterPage> {
     final password = passwordController.text;
     final confirmPassword = confirmPasswordController.text;
 
-    if (name.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    if (name.isEmpty ||
+        lastName.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
       fieldValidNotifier.value = false;
       return;
     }
@@ -142,9 +146,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: isValid 
-                  ? const Icon(Icons.check, color: Colors.white, size: 12) 
-                  : null,
+                child: isValid
+                    ? const Icon(Icons.check, color: Colors.white, size: 12)
+                    : null,
               ),
               const SizedBox(width: 12),
               Text(
@@ -164,25 +168,21 @@ class _RegisterPageState extends State<RegisterPage> {
 
   // Método para manejar el registro exitoso
   void _handleSuccessfulRegistration() {
-    
-    Navigator.of(context).pushNamedAndRemoveUntil(
-      AppRoutes.emailConfirmation,
-      (route) => false
-    );
+    Navigator.of(context)
+        .pushNamedAndRemoveUntil(AppRoutes.emailConfirmation, (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        
+
         // Navegar al login de manera segura
         Navigator.pushReplacementNamed(context, AppRoutes.login);
       },
       child: Scaffold(
-       
         body: ListView(
           children: [
             const GradientBackground(
@@ -190,7 +190,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Text(AppStrings.register, style: AppTheme.titleLarge),
                 SizedBox(height: 6),
                 Text(
-                  AppStrings.createYourAccount, 
+                  AppStrings.createYourAccount,
                   style: TextStyle(color: Colors.white),
                 ),
               ],
@@ -219,62 +219,69 @@ class _RegisterPageState extends State<RegisterPage> {
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    
+
                     // Password Requirements
                     ValueListenableBuilder<bool>(
                       valueListenable: isTypingPassword,
                       builder: (context, isTyping, child) {
                         return AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return ScaleTransition(scale: animation, child: child);
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                                scale: animation, child: child);
                           },
-                          child: isTyping 
-                            ? Container(
-                                key: const ValueKey('password-requirements'),
-                                margin: const EdgeInsets.only(bottom: 16),
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black12,
-                                      blurRadius: 10,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ],
-                                  border: Border.all(
-                                    color: Colors.grey.shade200,
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Requisitos de Contraseña',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.grey.shade800,
+                          child: isTyping
+                              ? Container(
+                                  key: const ValueKey('password-requirements'),
+                                  margin: const EdgeInsets.only(bottom: 16),
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                        color: Colors.black12,
+                                        blurRadius: 10,
+                                        offset: Offset(0, 4),
                                       ),
+                                    ],
+                                    border: Border.all(
+                                      color: Colors.grey.shade200,
+                                      width: 1,
                                     ),
-                                    const SizedBox(height: 8),
-                                    _buildPasswordRequirement(hasMinLength, 'Al menos 8 caracteres'),
-                                    _buildPasswordRequirement(hasUppercase, 'Una letra mayúscula'),
-                                    _buildPasswordRequirement(hasNumber, 'Un número'),
-                                    _buildPasswordRequirement(hasSpecialChar, 'Un carácter especial'),
-                                  ],
-                                ),
-                              )
-                            : const SizedBox.shrink(key: ValueKey('empty')),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Requisitos de Contraseña',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey.shade800,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      _buildPasswordRequirement(hasMinLength,
+                                          'Al menos 8 caracteres'),
+                                      _buildPasswordRequirement(
+                                          hasUppercase, 'Una letra mayúscula'),
+                                      _buildPasswordRequirement(
+                                          hasNumber, 'Un número'),
+                                      _buildPasswordRequirement(hasSpecialChar,
+                                          'Un carácter especial'),
+                                    ],
+                                  ),
+                                )
+                              : const SizedBox.shrink(key: ValueKey('empty')),
                         );
                       },
                     ),
 
                     // Password Input
-                    ValueListenableBuilder<bool>( 
+                    ValueListenableBuilder<bool>(
                       valueListenable: passwordNotifier,
                       builder: (_, passwordObscure, __) {
                         return AppTextFormField(
@@ -285,7 +292,9 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.visiblePassword,
                           suffixIcon: IconButton(
-                            icon: Icon(passwordObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                            icon: Icon(passwordObscure
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined),
                             onPressed: () {
                               passwordNotifier.value = !passwordNotifier.value;
                             },
@@ -306,9 +315,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           textInputAction: TextInputAction.done,
                           keyboardType: TextInputType.visiblePassword,
                           suffixIcon: IconButton(
-                            icon: Icon(confirmPasswordObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                            icon: Icon(confirmPasswordObscure
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined),
                             onPressed: () {
-                              confirmPasswordNotifier.value = !confirmPasswordNotifier.value;
+                              confirmPasswordNotifier.value =
+                                  !confirmPasswordNotifier.value;
                             },
                           ),
                         );
@@ -321,40 +333,47 @@ class _RegisterPageState extends State<RegisterPage> {
                       valueListenable: fieldValidNotifier,
                       builder: (_, isValid, __) {
                         return ElevatedButton(
-                          onPressed: isValid 
-                            ? () async {
-                                if (_formKey.currentState!.validate()) {
-                                  // Obtener los valores de los controladores
-                                  final fullName = "${nameController.text} ${lastNameController.text}";
+                          onPressed: isValid
+                              ? () async {
+                                  if (_formKey.currentState!.validate()) {
+                                    // Obtener los valores de los controladores
+                                    final fullName =
+                                        "${nameController.text} ${lastNameController.text}";
 
-                                  final auth = AuthController();
-                                  final confirmacion = email_service();
+                                    final email = EmailService();
+                                    try {
+                                      /*  fullName,
+                                          emailController.text,
+                                          confirmPasswordController.text);*/
+                                      if (email.isUserRegistered(
+                                          emailController.text)) {
+                                        SnackbarHelper.showSnackBar(
+                                            "Este correo ya está en uso");
+                                      } else {
+                                        // Enviar correo de confirmación
+                                        final response = await email
+                                            .sendEmail(emailController.text);
 
-                                  try {
-
-                                    final response = await auth.signUp(fullName, emailController.text, confirmPasswordController.text);
-                                    if(response['success']){
-                                      
-                                      await confirmacion.sendEmail(emailController.text);                                    
-                                      //pantalla de confirmación (redirigir)
-                                      final emailConfirmationScreen = EmailConfirmationScreen();
-                                      _handleSuccessfulRegistration();
-                                      
-                                      //SnackbarHelper.showSnackBar("Registro exitoso");
-
-                                    }else{
-                                      SnackbarHelper.showSnackBar(response['error']);
-                                    }  
-                                  } catch (e) {
-                                    // Manejo del error
-                                    SnackbarHelper.showSnackBar("Error $e");
+                                        if (response['success']) {
+                                          SnackbarHelper.showSnackBar(
+                                              response['message']);
+                                          //pantalla de verificación de correo
+                                          _handleSuccessfulRegistration();
+                                        } else {
+                                          SnackbarHelper.showSnackBar(
+                                              response['message']);
+                                        }
+                                      }
+                                    } catch (e) {
+                                      SnackbarHelper.showSnackBar("Error $e");
+                                    }
                                   }
                                 }
-                              }
-                            : null,
+                              : null,
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50),
-                            backgroundColor: isValid ? Theme.of(context).primaryColor : null,
+                            backgroundColor:
+                                isValid ? Theme.of(context).primaryColor : null,
                             foregroundColor: Colors.white,
                           ),
                           child: const Text('Registrarse'),
@@ -370,7 +389,8 @@ class _RegisterPageState extends State<RegisterPage> {
                         const Text('¿Ya tienes una cuenta?'),
                         TextButton(
                           onPressed: () {
-                            Navigator.pushReplacementNamed(context, AppRoutes.login);
+                            Navigator.pushReplacementNamed(
+                                context, AppRoutes.login);
                           },
                           child: const Text('Iniciar Sesión'),
                         ),

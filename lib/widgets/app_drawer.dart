@@ -85,12 +85,6 @@ class AppDrawer extends StatelessWidget {
 
                     if (success && context.mounted) {
                       Phoenix.rebirth(context);
-                      // Navegar a la pantalla de login
-                      /*Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                            builder: (context) => const LoginRegisterApp()),
-                        (route) => false,
-                      );*/
                     }
                   } catch (e) {
                     if (context.mounted) {

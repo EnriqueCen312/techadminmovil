@@ -30,14 +30,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      home: AuthHandler(),
+      home: const AuthHandler(),
     );
   }
 }
 
 class AuthHandler extends StatefulWidget {
+  const AuthHandler({Key? key}) : super(key: key);
+
   @override
-  _AuthHandlerState createState() => _AuthHandlerState();
+  State<AuthHandler> createState() => _AuthHandlerState();
 }
 
 class _AuthHandlerState extends State<AuthHandler> {

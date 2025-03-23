@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 class EmailConfirmationScreen extends StatefulWidget {
+  const EmailConfirmationScreen({super.key});
+
   @override
-  _EmailConfirmationScreenState createState() => _EmailConfirmationScreenState();
+  State<EmailConfirmationScreen> createState() =>
+      _EmailConfirmationScreenState();
 }
 
 class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
@@ -11,53 +14,52 @@ class _EmailConfirmationScreenState extends State<EmailConfirmationScreen> {
   void _verifyCode() {
     String code = _codeController.text;
     if (code.length == 5) {
-      // Aquí podrías llamar a Supabase para verificar el código
-      print("Código ingresado: $code");
+      debugPrint("Código ingresado: $code");
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("El código debe tener 5 dígitos")),
+        const SnackBar(content: Text("El código debe tener 5 dígitos")),
       );
     }
   }
 
   void _resendCode() {
     // Aquí podrías implementar el reenvío del código
-    print("Reenviar código");
+    debugPrint("Reenviar código");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Confirmación de Correo")),
+      appBar: AppBar(title: const Text("Confirmación de Correo")),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               "Ingresa el código de 5 dígitos que enviamos a tu correo",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _codeController,
               keyboardType: TextInputType.number,
               maxLength: 5,
               textAlign: TextAlign.center,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: "12345",
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _verifyCode,
-              child: Text("Verificar"),
+              child: const Text("Verificar"),
             ),
             TextButton(
               onPressed: _resendCode,
-              child: Text("Reenviar código"),
+              child: const Text("Reenviar código"),
             ),
           ],
         ),

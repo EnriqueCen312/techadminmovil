@@ -157,8 +157,7 @@ class AuthController {
       return true;
     } catch (e) {
       debugPrint("Error en logout: $e");
-      // Re-lanzar el error para que el que llama pueda manejarlo
-      rethrow;
+      return false;
     }
   }
 
@@ -175,7 +174,7 @@ class AuthController {
       }
       return null;
     } catch (e) {
-      print('Error al obtener el ID: $e');
+      debugPrint('Error al obtener el ID: $e');
       return null;
     }
   }

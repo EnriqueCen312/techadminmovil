@@ -33,23 +33,29 @@ class Routes {
         return getRoute(widget: const RegisterPage());
 
       case AppRoutes.homePage:
-        return getRoute(widget: const HomePage()); // Actualizado a `home_screen.dart`
+        return getRoute(
+            widget: const HomePage()); // Actualizado a `home_screen.dart`
 
       case AppRoutes.vehiclePage:
-        return getRoute(widget: const VehicleScreen()); // Actualizado a `vehicle_screen.dart`
+        return getRoute(
+            widget:
+                const VehicleScreen()); // Actualizado a `vehicle_screen.dart`
 
       case AppRoutes.appointmentsPage:
-        return getRoute(widget: const AppointmentsScreen()); // Actualizado a `appointments_screen.dart`
+        return getRoute(
+            widget:
+                const AppointmentsScreen()); // Actualizado a `appointments_screen.dart`
 
       case AppRoutes.historyPage:
-        return getRoute(widget: const HistoryScreen()); // Actualizado a `history_screen.dart`
-        
+        return getRoute(
+            widget:
+                const HistoryScreen()); // Actualizado a `history_screen.dart`
 
       case AppRoutes.bottomNavigationPage:
         return getRoute(widget: const BottomNavigationPage());
 
       case AppRoutes.emailConfirmation:
-        return getRoute(widget: EmailConfirmationScreen());
+        return getRoute(widget: const EmailConfirmationScreen());
       // Ruta no válida
       default:
         return getRoute(widget: const InvalidRoute());
