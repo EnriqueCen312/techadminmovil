@@ -28,6 +28,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
 
+  // Agregar un flag para controlar si el widget está disposed
+  bool _isDisposed = false;
+
   final ValueNotifier<bool> passwordNotifier = ValueNotifier(true);
   final ValueNotifier<bool> fieldValidNotifier = ValueNotifier(false);
   final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
@@ -66,12 +69,18 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> handleLogin() async {
     try {
+      // Verificar si el widget aún está montado
+      if (_isDisposed) return;
+      
       isLoadingNotifier.value = true;
       
       final email = emailController.text.trim();
       final password = passwordController.text;
 
       final response = await login(email, password);
+
+      // Verificar nuevamente si el widget está montado
+      if (_isDisposed) return;
 
       if (response['success']) {
         SnackbarHelper.showSnackBar(AppStrings.loggedIn);
@@ -82,9 +91,14 @@ class _LoginPageState extends State<LoginPage> {
         SnackbarHelper.showSnackBar(response['error']);
       }
     } catch (e) {
-      SnackbarHelper.showSnackBar("Error inesperado: $e");
+      if (!_isDisposed) {
+        SnackbarHelper.showSnackBar("Error inesperado: $e");
+      }
     } finally {
-      isLoadingNotifier.value = false;
+      // Verificar antes de actualizar el notifier
+      if (!_isDisposed) {
+        isLoadingNotifier.value = false;
+      }
     }
   }
 
@@ -149,7 +163,10 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
+    _isDisposed = true;
     disposeControllers();
+    passwordNotifier.dispose();
+    fieldValidNotifier.dispose();
     isLoadingNotifier.dispose();
     super.dispose();
   }
