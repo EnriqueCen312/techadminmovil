@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:login_register_app/connection/email_service/email_service.dart';
 import 'package:login_register_app/utils/helpers/snackbar_helper.dart';
@@ -166,10 +168,29 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // Método para manejar el registro exitoso
-  void _handleSuccessfulRegistration() {
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil(AppRoutes.emailConfirmation, (route) => false);
+  // Método para manejar el registro
+  Future<void> _handleSuccessfulRegistration(
+      String name, String email, String password, int code) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final Map<String, dynamic> registrationData = {
+        'name': name,
+        'email': email,
+        'password': password,
+        'code': code,
+        'registrationTimestamp': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      await prefs.setString(
+          'pendingRegistration', json.encode(registrationData));
+      print('Datos de registro guardados: $email con código $code');
+
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.emailConfirmation, (route) => false);
+    } catch (e) {
+      print('Error al guardar datos de registro: $e');
+      SnackbarHelper.showSnackBar('Error al guardar datos de registro');
+    }
   }
 
   @override
@@ -342,11 +363,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
                                     final email = EmailService();
                                     try {
-                                      /*  fullName,
-                                          emailController.text,
-                                          confirmPasswordController.text);*/
-                                      if (email.isUserRegistered(
-                                          emailController.text)) {
+                                      Future<bool> emailRegistered =
+                                          email.isUserRegistered(
+                                              emailController.text);
+
+                                      if (await emailRegistered) {
                                         SnackbarHelper.showSnackBar(
                                             "Este correo ya está en uso");
                                       } else {
@@ -358,7 +379,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                           SnackbarHelper.showSnackBar(
                                               response['message']);
                                           //pantalla de verificación de correo
-                                          _handleSuccessfulRegistration();
+                                          _handleSuccessfulRegistration(
+                                              fullName,
+                                              emailController.text,
+                                              confirmPasswordController.text,
+                                              email.code);
                                         } else {
                                           SnackbarHelper.showSnackBar(
                                               response['message']);
