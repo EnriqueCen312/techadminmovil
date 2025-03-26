@@ -11,18 +11,34 @@ class EmailService {
 
   Future<bool> isUserRegistered(String email) async {
     try {
-      // Verifica directamente en la tabla de usuarios
+      // Verifica en la tabla 'auth.users'
       final response = await supabase
-          .from('auth.users')
+          .from('users')
           .select('email')
           .eq('email', email)
           .maybeSingle();
 
-      // response será null si no se encontró el usuario
-      return response != null;
+      // Verifica en la tabla 'usuarios_app'
+      final response2 = await supabase
+          .from('usuarios_app')
+          .select('email')
+          .eq('email', email)
+          .maybeSingle();
+
+      print("¿Usuario registrado?: $response $response2");
+      // Si el correo existe en cualquiera de las dos tablas, devuelve true
+      
+      if (response != null || response2 != null) {
+        print('El correo $email ya está registrado.');
+        return true;
+      }
+
+      // Si no se encontró en ninguna tabla, devuelve false
+      print('El correo $email no está registrado.');
+      return false;
     } catch (e) {
       print('Error al verificar usuario: $e');
-      return false;
+      return true;
     }
   }
 

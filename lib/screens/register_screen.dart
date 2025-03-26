@@ -363,11 +363,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
                                     final email = EmailService();
                                     try {
-                                      Future<bool> emailRegistered =
+                                      final bool emailRegistered = await
                                           email.isUserRegistered(
                                               emailController.text);
 
-                                      if (await emailRegistered) {
+                                      if (emailRegistered) {
                                         SnackbarHelper.showSnackBar(
                                             "Este correo ya está en uso");
                                       } else {
