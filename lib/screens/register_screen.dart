@@ -371,10 +371,11 @@ class _RegisterPageState extends State<RegisterPage> {
                                         SnackbarHelper.showSnackBar(
                                             "Este correo ya está en uso");
                                       } else {
+                                        
                                         // Enviar correo de confirmación
                                         final response = await email
-                                            .sendEmail(emailController.text);
-
+                                          .sendEmail(emailController.text);
+                                          
                                         if (response['success']) {
                                           SnackbarHelper.showSnackBar(
                                               response['message']);

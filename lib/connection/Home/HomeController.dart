@@ -21,9 +21,14 @@ class HomeController {
     fetchWorkshops();
   }
   
-  Future<void> fetchWorkshops() async {
+/*  Future<void> fetchWorkshops() async {
     try {
-      final response = await supabase.from('talleres').select().limit(10);
+      final response = await supabase
+        .from('talleres')
+        .select()
+        .or('id.eq.103,id.neq.103')
+        .limit(10);
+
       workshops = List<Map<String, dynamic>>.from(response);
       _filteredWorkshops = List.from(workshops); // Initialize filtered list
       _isFiltering = false; // Reset filtering flag
@@ -33,6 +38,38 @@ class HomeController {
       throw Exception('Failed to fetch workshops');
     }
   }
+*/
+Future<void> fetchWorkshops() async {
+  try {
+    // Obtener los primeros 9 talleres
+    final firstNineResponse = await supabase
+        .from('talleres')
+        .select()
+        .limit(9);
+
+    // Obtener el taller con id = 103
+    final workshop103Response = await supabase
+        .from('talleres')
+        .select()
+        .eq('id', 103)
+        .limit(1);
+
+    // Combinar ambos resultados
+    workshops = List<Map<String, dynamic>>.from(firstNineResponse);
+    workshops.addAll(workshop103Response);
+
+    // Inicializar la lista filtrada
+    _filteredWorkshops = List.from(workshops);
+
+    // Resetear la bandera de filtrado
+    _isFiltering = false;
+    
+    return;
+  } catch (error) {
+    print('Error fetching workshops: $error');
+    throw Exception('Failed to fetch workshops');
+  }
+}
 
   // Get the workshops that should be displayed (either filtered or all)
   List<Map<String, dynamic>> getDisplayedWorkshops() {

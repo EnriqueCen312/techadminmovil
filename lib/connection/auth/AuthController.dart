@@ -37,6 +37,7 @@ class AuthController {
             'nombre': name,
             'email': cleanEmail,
             'password': hashedPassword,
+            'correo_confirmado': true,
           })
           .select()
           .maybeSingle(); //devuelve datos o null en caso de error
